@@ -25,7 +25,8 @@ client.distube = distube
 client.once('ready', client => {
     console.log(`Logged in as ${client.user.tag}`);
 
-    const guild = client.guilds.cache.get(process.env.GUILDID)
+    client.user.setPresence({ activities: [{ name: "Try Me Playlist" , type: 'LISTENING', url: "https://open.spotify.com/playlist/6bTfXqBI1UUeweb8XXFY5h?si=8a3aaa4dce28440c"}]})
+
     const channel = client.channels.cache.get(process.env.VCID)
 
     client.distube.playVoiceChannel(
@@ -39,8 +40,11 @@ client.once('ready', client => {
 client.distube.on('addList', (queue, playlist) => {
     const guild = client.guilds.cache.get(process.env.GUILDID)
 
-    client.distube.setRepeatMode(guild, 2)
-    console.log("Set repeat mode to 2 (queue mode)")
+    client.distube.shuffle(guild)
+    console.log("Shuffled queue")
+
+    client.distube.setVolume(guild, 50)
+    console.log("set Volume to 50%")
 })
 
 client.distube.on('error', (channel, error) => {
@@ -49,6 +53,26 @@ client.distube.on('error', (channel, error) => {
 
 client.distube.on('finish', (queue) => {
     console.log("queue has finished")
+
+    const channel = client.channels.cache.get(process.env.VCID)
+
+    client.distube.playVoiceChannel(
+        channel,
+        "https://open.spotify.com/playlist/6bTfXqBI1UUeweb8XXFY5h?si=1e424aad117d42bf",
+    )
+
+    console.log("Updated to latest playlist")
+
+})
+
+client.distube.on('disconnect', queue => {
+    const channel = client.channels.cache.get(process.env.VCID)
+
+    client.distube.playVoiceChannel(
+        channel,
+        "https://open.spotify.com/playlist/6bTfXqBI1UUeweb8XXFY5h?si=1e424aad117d42bf",
+    )
+    console.log("Bot disconnected, Re-added playlist")
 })
 
 client.login(process.env.TOKEN);
